@@ -5,7 +5,7 @@ const User = require('../models/User');
 const router = express.Router();
 
 const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
 router.post('/signup', async (req, res) => {
@@ -13,7 +13,7 @@ router.post('/signup', async (req, res) => {
   try {
     const userExists = await User.findOne({ username });
     if (userExists) return res.status(400).json({ message: "User already exists" });
-    
+
     const user = await User.create({ username, email, password });
     res.status(201).json({
       _id: user._id,
