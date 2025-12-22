@@ -8,6 +8,8 @@ import {
   ArrowRight, ChevronDown, ChevronUp, Clock, Users 
 } from 'lucide-react';
 
+const api = import.meta.env.VITE_API_URL;
+
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [rooms, setRooms] = useState([]);
@@ -17,6 +19,9 @@ const Dashboard = () => {
   const [expandedRoomId, setExpandedRoomId] = useState(null);
 
   const [searchQuery, setSearchQuery] = useState('');
+
+  const [joinRoomId, setJoinRoomId] = useState('');
+  const [isJoinMode, setIsJoinMode] = useState(false);
 
   const navigate = useNavigate();
 
@@ -31,10 +36,10 @@ const Dashboard = () => {
 
     const fetchRooms = async (userId) => {
       try {
-        const { data } = await axios.get(`http://localhost:5000/api/rooms/user/${userId}`);
+        const { data } = await axios.get(`${api}/api/rooms/user/${userId}`);
         setRooms(data);
         setLoading(false);
-      } catch (error) {
+      } catch {
         toast.error("Failed to fetch rooms");
         setLoading(false);
       }
@@ -47,13 +52,13 @@ const Dashboard = () => {
     if (!newRoomName) return toast.error("Please enter a room name");
 
     try {
-      const { data } = await axios.post('http://localhost:5000/api/rooms/create', {
+      const { data } = await axios.post(`${api}/api/rooms/create`, {
         name: newRoomName,
         userId: user._id
       });
       navigate(`/editor/${data.roomId}`);
       toast.success("Room created!");
-    } catch (error) {
+    } catch {
       toast.error("Failed to create room");
     }
   };
@@ -61,6 +66,11 @@ const Dashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem('userInfo');
     navigate('/');
+  };
+
+  const handleJoinRoom = () => {
+    if (!joinRoomId) return toast.error("Please enter a Room ID");
+    navigate(`/editor/${joinRoomId}`);
   };
 
   const toggleRoomDetails = (id, e) => {
@@ -190,31 +200,81 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Create Widget */}
+              {/* Create / Join Widget */}
               <div className="xl:col-span-1">
-                <div className="bg-white rounded-4xl p-6 shadow-sm h-full flex flex-col">
-                  <h4 className="font-display font-bold text-synapse-dark mb-6">New Room</h4>
-                  <div className="bg-gray-50 rounded-3xl p-6 flex flex-col items-center justify-center mb-6 border-2 border-dashed border-gray-200">
-                    <div className="w-16 h-16 bg-accent-lime rounded-2xl flex items-center justify-center text-synapse-dark mb-3">
-                      <Code2 size={32} />
+                <div className="bg-white rounded-4xl p-6 shadow-sm h-full flex flex-col transition-all duration-300">
+
+                  {/* Toggle Header */}
+                  <div className="flex items-center justify-between mb-6">
+                    <h4 className="font-display font-bold text-synapse-dark">
+                      {isJoinMode ? 'Join Room' : 'New Room'}
+                    </h4>
+                    <div className="flex bg-gray-100 rounded-lg p-1">
+                      <button 
+                        onClick={() => setIsJoinMode(false)}
+                        className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${!isJoinMode ? 'bg-white shadow-sm text-synapse-dark' : 'text-gray-400 hover:text-gray-600'}`}
+                      >
+                        Create
+                      </button>
+                      <button 
+                        onClick={() => setIsJoinMode(true)}
+                        className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${isJoinMode ? 'bg-white shadow-sm text-synapse-dark' : 'text-gray-400 hover:text-gray-600'}`}
+                      >
+                        Join
+                      </button>
                     </div>
-                    <span className="text-xs font-medium text-gray-400">Select Template</span>
                   </div>
+
+                  {/* Icon Display */}
+                  <div className="bg-gray-50 rounded-3xl p-6 flex flex-col items-center justify-center mb-6 border-2 border-dashed border-gray-200">
+                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-synapse-dark mb-3 transition-colors duration-300 ${isJoinMode ? 'bg-blue-100 text-blue-600' : 'bg-accent-lime text-synapse-dark'}`}>
+                      {isJoinMode ? <Search size={32} /> : <Code2 size={32} />}
+                    </div>
+                    <span className="text-xs font-medium text-gray-400">
+                      {isJoinMode ? 'Find existing session' : 'Make a new room'}
+                    </span>
+                  </div>
+
+                  {/* Dynamic Form Content */}
                   <div className="space-y-4 flex-1">
-                    <input 
-                      type="text" 
-                      placeholder="Room Name" 
-                      value={newRoomName}
-                      onChange={(e) => setNewRoomName(e.target.value)}
-                      className="w-full bg-gray-50 rounded-xl px-4 py-3 text-sm outline-none focus:ring-1 ring-synapse-dark text-synapse-dark"
-                    />
-                    <button 
-                      onClick={handleCreateRoom}
-                      className="w-full bg-synapse-dark text-white font-display font-semibold rounded-2xl py-4 mt-6 shadow-lg hover:scale-[1.02] transition-transform"
-                    >
-                      Create Room
-                    </button>
+                    {isJoinMode ? (
+                      // JOIN MODE INPUTS
+                      <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <input 
+                          type="text" 
+                          placeholder="Paste Room ID..." 
+                          value={joinRoomId}
+                          onChange={(e) => setJoinRoomId(e.target.value)}
+                          className="w-full bg-gray-50 rounded-xl px-4 py-3 text-sm outline-none focus:ring-1 ring-synapse-dark text-synapse-dark font-mono placeholder:font-sans"
+                        />
+                        <button 
+                          onClick={handleJoinRoom}
+                          className="w-full bg-synapse-dark text-white font-display font-semibold rounded-2xl py-4 mt-6 shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-transform flex items-center justify-center gap-2 group"
+                        >
+                          Join Room
+                          <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                        </button>
+                      </div>
+                    ) : (
+                        // CREATE MODE INPUTS
+                        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                          <input 
+                            type="text" 
+                            placeholder="Room Name" 
+                            value={newRoomName}
+                            onChange={(e) => setNewRoomName(e.target.value)}
+                            className="w-full bg-gray-50 rounded-xl px-4 py-3 text-sm outline-none focus:ring-1 ring-synapse-dark text-synapse-dark"
+                          />
+                          <button 
+                            onClick={handleCreateRoom}
+                            className="w-full bg-synapse-dark text-white font-display font-semibold rounded-2xl py-4 mt-6 shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                          >
+                            Create Room
+                          </button>
+                        </div>
+                      )}
                   </div>
+
                 </div>
               </div>
             </div>

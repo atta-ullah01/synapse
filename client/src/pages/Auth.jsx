@@ -4,6 +4,8 @@ import { Zap } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+const api = import.meta.env.VITE_API_URL;
+
 const Auth = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
@@ -17,7 +19,7 @@ const Auth = () => {
         const payload = isLogin ? { email, password } : { username, email, password };
 
         try {
-            const { data } = await axios.post(`http://localhost:5000/api/auth${endpoint}`, payload);
+            const { data } = await axios.post(`${api}/api/auth${endpoint}`, payload);
             localStorage.setItem('userInfo', JSON.stringify(data));
             toast.success(`Welcome, ${data.username}!`);
             navigate('/dashboard'); 

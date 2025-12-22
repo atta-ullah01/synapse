@@ -2,7 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const http = require("http");
-const { Server } = require("socket.io");
+const { WebSocketServer } = require("ws");
+const { setupWSConnection } = require("y-websocket/bin/utils");
+
 require("dotenv").config();
 
 const authRoutes = require("./routes/auth");
@@ -29,31 +31,25 @@ const connectDB = async () => {
 
 const server = http.createServer(app);
 
-const io = new Server(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
+const wss = new WebSocketServer({ noServer: true });
+
+wss.on('connection', (ws, req) => {
+  const docName = req.url.slice(5); 
+  setupWSConnection(ws, req, { docName });
 });
-io.on("connection", (socket) => {
-    console.log(`User Connected: ${socket.id}`);
 
-    socket.on("join-room", (roomId) => {
-        socket.join(roomId);
-        console.log(`User ${socket.id} joined room: ${roomId}`);
+server.on('upgrade', (request, socket, head) => {
+  if (request.url.startsWith('/doc/')) {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      wss.emit('connection', ws, request);
     });
-
-    socket.on("code-change", ({ roomId, filename, code }) => {
-        socket.to(roomId).emit("code-update", { filename, code });
-    });
-
-    socket.on("disconnect", () => {
-        console.log("User Disconnected", socket.id);
-    });
+  } else {
+    socket.destroy();
+  }
 });
 
 connectDB().then(() => {
-  server.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on ${PORT}`);
   });
 });
