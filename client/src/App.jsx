@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
+import EditorPage from './pages/EditorPage';
 
 import { Toaster } from 'react-hot-toast';
 
@@ -12,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Auth/>} />
           <Route path="/dashboard" element={<Dashboard/>} />
+          <Route path="/editor/:roomId" element={<EditorPage/>} />
         </Routes>
       </BrowserRouter>
     </>
