@@ -9,6 +9,7 @@ require("dotenv").config();
 
 const authRoutes = require("./routes/auth");
 const roomRoutes = require("./routes/rooms.js");
+const executeRoutes = require("./routes/execute.js");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,6 +19,7 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/rooms/', roomRoutes);
+app.use('/api/execute', executeRoutes)
 
 const connectDB = async () => {
   try {

@@ -23,7 +23,7 @@ const EditorPage = () => {
   const [activeFileName, setActiveFileName] = useState('');
   const [activeUsers, setActiveUsers] = useState([]);
   const [isDirty, setIsDirty] = useState(false);
-  
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [outputOpen, setOutputOpen] = useState(false);
   const [output, setOutput] = useState([]);
@@ -52,10 +52,10 @@ const EditorPage = () => {
 
   useEffect(() => {
     fetchRoom().then((fetchedFiles) => {
-        if (fetchedFiles && fetchedFiles.length > 0) {
-            setActiveFileName(fetchedFiles[0].name);
-        }
-        setLoading(false);
+      if (fetchedFiles && fetchedFiles.length > 0) {
+        setActiveFileName(fetchedFiles[0].name);
+      }
+      setLoading(false);
     });
   }, [roomId, navigate]);
 
@@ -71,16 +71,16 @@ const EditorPage = () => {
 
     // Awareness configuration
     const userInfo = JSON.parse(localStorage.getItem('userInfo')) || { username: 'Guest' };
-    
+
     // Hash username to color
     const stringToColor = (str) => {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) { hash = str.charCodeAt(i) + ((hash << 5) - hash); }
-        let c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
-        return '#' + '00000'.substring(0, 6 - c.length) + c;
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) { hash = str.charCodeAt(i) + ((hash << 5) - hash); }
+      let c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+      return '#' + '00000'.substring(0, 6 - c.length) + c;
     };
     const userColor = stringToColor(userInfo.username);
-    
+
     provider.awareness.setLocalStateField('user', {
       name: userInfo.username,
       color: userColor
@@ -115,40 +115,40 @@ const EditorPage = () => {
     // Clear stale cursors
     const decorations = model.getAllDecorations();
     const ghostDecorations = decorations
-      .filter(d => d.options.className?.includes('yRemoteSelection'))
-      .map(d => d.id);
+    .filter(d => d.options.className?.includes('yRemoteSelection'))
+    .map(d => d.id);
     if (ghostDecorations.length > 0) {
-        model.deltaDecorations(ghostDecorations, []);
+      model.deltaDecorations(ghostDecorations, []);
     }
 
     // Hydrate Yjs from DB if empty
     const onSync = () => {
       if (yText.toString() === '' && activeFile?.content) {
-         yText.insert(0, activeFile.content);
+        yText.insert(0, activeFile.content);
       }
     };
 
     if (providerRef.current.synced) {
-        onSync();
+      onSync();
     } else {
-        providerRef.current.once('synced', onSync);
+      providerRef.current.once('synced', onSync);
     }
 
     const binding = new MonacoBinding(
-        yText,
-        model,
-        new Set([editor]),
-        providerRef.current.awareness
+      yText,
+      model,
+      new Set([editor]),
+      providerRef.current.awareness
     );
     bindingRef.current = binding;
 
     setIsDirty(false); 
 
     return () => {
-        if (bindingRef.current) {
-            bindingRef.current.destroy();
-            bindingRef.current = null;
-        }
+      if (bindingRef.current) {
+        bindingRef.current.destroy();
+        bindingRef.current = null;
+      }
     };
 
   }, [activeFileName, loading, activeFile, editorMounted]);
@@ -166,36 +166,36 @@ const EditorPage = () => {
     }
 
     const cssRules = activeUsers.map(u => {
-        if (!u.color || !u.name) return '';
-        return `
-          .yRemoteSelectionHead-${u.clientId} {
-            border-left: 2px solid ${u.color} !important;
-            border-top: 2px solid ${u.color} !important;
-            border-bottom: 2px solid ${u.color} !important;
-            height: 100%;
-            box-sizing: border-box;
-            position: absolute;
-          }
-          .yRemoteSelectionHead-${u.clientId}::after {
-            content: "${u.name}";
-            position: absolute;
-            top: -22px;
-            left: -2px;
-            background: ${u.color};
-            color: #fff;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 4px;
-            white-space: nowrap;
-            pointer-events: none;
-            z-index: 50;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-          }
-          .yRemoteSelection-${u.clientId} {
-            background-color: ${u.color}33 !important;
-          }
-        `;
+      if (!u.color || !u.name) return '';
+      return `
+.yRemoteSelectionHead-${u.clientId} {
+border-left: 2px solid ${u.color} !important;
+border-top: 2px solid ${u.color} !important;
+border-bottom: 2px solid ${u.color} !important;
+height: 100%;
+box-sizing: border-box;
+position: absolute;
+}
+.yRemoteSelectionHead-${u.clientId}::after {
+content: "${u.name}";
+position: absolute;
+top: -22px;
+left: -2px;
+background: ${u.color};
+color: #fff;
+font-size: 10px;
+font-weight: bold;
+padding: 2px 6px;
+border-radius: 4px;
+white-space: nowrap;
+pointer-events: none;
+z-index: 50;
+box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.yRemoteSelection-${u.clientId} {
+background-color: ${u.color}33 !important;
+}
+`;
     }).join('\n');
 
     styleTag.innerHTML = cssRules;
@@ -241,42 +241,62 @@ const EditorPage = () => {
   };
 
   const handleDeleteFile = async (e, fileName) => {
-      e.stopPropagation();
-      if (!window.confirm(`Delete ${fileName}?`)) return;
-      try {
-        const { data } = await axios.delete(`${api}/api/rooms/${roomId}/files/${fileName}`);
-        setFiles(data);
-        if (activeFileName === fileName) setActiveFileName(data.length > 0 ? data[0].name : '');
-        toast.success("File deleted");
-      } catch { toast.error("Failed to delete"); }
+    e.stopPropagation();
+    if (!window.confirm(`Delete ${fileName}?`)) return;
+    try {
+      const { data } = await axios.delete(`${api}/api/rooms/${roomId}/files/${fileName}`);
+      setFiles(data);
+      if (activeFileName === fileName) setActiveFileName(data.length > 0 ? data[0].name : '');
+      toast.success("File deleted");
+    } catch { toast.error("Failed to delete"); }
   };
 
-  const runCode = () => {
+  const runCode = async () => {
+    if (!activeFile) return;
+
     setIsRunning(true);
     setOutputOpen(true);
-    setTimeout(() => {
-      setOutput([`> Executing ${activeFileName}...`, "Hello Synapse!", "Done."]);
+    setOutput([]);
+
+    try {
+      const { data } = await axios.post(`${api}/api/execute`, {
+        language: activeFile.language === 'cpp' ? 'cplusplus' : activeFile.language, // Map cpp to cplusplus for backend
+        code: activeFile.content
+      });
+
+      const result = data.run;
+
+      const newOutput = [];
+      if (result.stdout) newOutput.push(result.stdout);
+      if (result.stderr) newOutput.push(`Error:\n${result.stderr}`);
+
+      if (newOutput.length === 0) newOutput.push("Program executed successfully with no output.");
+
+      setOutput(newOutput);
+    } catch (error) {
+      setOutput(["Failed to execute code.", error.message]);
+    } finally {
       setIsRunning(false);
-    }, 1000);
+    }
   };
 
   if (loading) return <div className="h-screen bg-[#1e1e1e] text-white flex items-center justify-center">Loading...</div>;
 
   return (
     <div className="flex flex-col h-screen w-full bg-[#F8F9FB] md:bg-[#F8F9FB] overflow-hidden">
-      
+
       <div className="md:hidden h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-20">
         <button onClick={() => setSidebarOpen(true)} className="text-gray-700"><Menu size={20} /></button>
         <div className="flex items-center gap-2 font-bold text-sm">
-           {activeFileName || 'No File'}
-           {isDirty && <div className="w-2 h-2 rounded-full bg-orange-500"/>}
+          {activeFileName || 'No File'}
+          {isDirty && <div className="w-2 h-2 rounded-full bg-orange-500"/>}
         </div>
         <button onClick={runCode}><Play size={14} className="fill-current text-gray-700" /></button>
       </div>
 
       <div className="flex-1 flex overflow-hidden md:p-4 gap-4 relative">
         <div className={`absolute md:relative z-30 inset-y-0 left-0 w-64 bg-white md:rounded-3xl shadow-2xl md:shadow-sm transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} flex flex-col p-6`}>
-           <div className="flex justify-between items-center mb-6 md:hidden">
+          <div className="flex justify-between items-center mb-6 md:hidden">
             <h3 className="font-bold">Menu</h3>
             <button onClick={() => setSidebarOpen(false)}><X size={20} /></button>
           </div>
@@ -295,10 +315,10 @@ const EditorPage = () => {
                 key={file.name} 
                 onClick={() => { setActiveFileName(file.name); setSidebarOpen(false); }}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer ${
-                  activeFileName === file.name 
-                    ? 'bg-green-100 text-green-800 border-l-4 border-green-500' 
-                    : 'text-gray-500 hover:bg-gray-50'
-                }`}
+activeFileName === file.name
+? 'bg-green-100 text-green-800 border-l-4 border-green-500'
+: 'text-gray-500 hover:bg-gray-50'
+}`}
               >
                 <FileCode size={16} />
                 <span className="truncate text-sm font-medium flex-1">{file.name}</span>
@@ -307,7 +327,7 @@ const EditorPage = () => {
             ))}
           </div>
 
-           <div className="border-t pt-6 mt-4">
+          <div className="border-t pt-6 mt-4">
             <div className="flex items-center gap-2 text-gray-400 text-xs font-bold mb-3"><Users size={12} /> ONLINE ({activeUsers.length})</div>
             <div className="flex -space-x-2">
               {activeUsers.map((u, i) => (
@@ -327,12 +347,12 @@ const EditorPage = () => {
         <div className="flex-1 bg-[#1e1e1e] w-full md:rounded-3xl shadow-2xl relative overflow-hidden flex flex-col">
           <div className="hidden md:flex h-12 bg-[#252526] border-b border-black items-center justify-between px-6 select-none">
             <div className="flex gap-2"><div className="w-3 h-3 rounded-full bg-red-500"/><div className="w-3 h-3 rounded-full bg-yellow-500"/><div className="w-3 h-3 rounded-full bg-green-500"/></div>
-            
+
             <div className="flex items-center gap-2">
-               <span className="text-gray-400 text-sm font-mono">{activeFileName}</span>
-               {isDirty && (
-                 <div className="w-2 h-2 rounded-full bg-white opacity-80" title="Unsaved Changes"/>
-               )}
+              <span className="text-gray-400 text-sm font-mono">{activeFileName}</span>
+              {isDirty && (
+                <div className="w-2 h-2 rounded-full bg-white opacity-80" title="Unsaved Changes"/>
+              )}
             </div>
 
             <div className="flex gap-2">
@@ -343,36 +363,36 @@ const EditorPage = () => {
 
           <div className="flex-1 relative">
             {activeFile ? (
-               <Editor
-               height="100%"
-               language={activeFile.language === 'nodejs' ? 'javascript' : activeFile.language}
-               theme="vs-dark"
-               path={activeFile.name} 
-               onMount={handleEditorDidMount} 
-               onChange={handleEditorChange}
-               options={{ 
-                 minimap: { enabled: false }, 
-                 fontSize: 14, 
-                 fontFamily: 'JetBrains Mono',
-                 automaticLayout: true 
-               }}
-             />
+              <Editor
+                height="100%"
+                language={activeFile.language === 'nodejs' ? 'javascript' : activeFile.language}
+                theme="vs-dark"
+                path={activeFile.name}
+                onMount={handleEditorDidMount}
+                onChange={handleEditorChange}
+                options={{
+                  minimap: { enabled: false },
+                  fontSize: 14,
+                  fontFamily: 'JetBrains Mono',
+                  automaticLayout: true
+                }}
+              />
             ) : <div className="flex items-center justify-center h-full text-gray-500">Select a file</div>}
           </div>
         </div>
 
         <div className={`absolute md:relative z-30 inset-x-0 bottom-0 md:w-80 bg-white md:rounded-3xl shadow-xl transition-transform duration-300 flex flex-col ${outputOpen ? 'translate-y-0' : 'translate-y-full md:translate-y-0'} h-[40vh] md:h-auto`}>
-           <div className="md:hidden w-full flex justify-center pt-3 pb-1" onClick={() => setOutputOpen(false)}><div className="w-12 h-1.5 bg-gray-300 rounded-full"/></div>
-           <div className="p-6 flex flex-col h-full">
-             <div className="flex gap-2 mb-4">
-               <button className="bg-gray-800 text-white text-xs px-3 py-1.5 rounded-full font-bold">Output</button>
-               <button onClick={() => setOutput([])} className="ml-auto text-gray-400 hover:text-red-500"><Trash2 size={14} /></button>
-             </div>
-             <div className="flex-1 bg-[#1e1e1e] rounded-xl p-4 font-mono text-xs overflow-y-auto text-gray-300">
-               {output.map((line, i) => <div key={i} className="mb-1">{line}</div>)}
-               {isRunning && <div className="text-lime-400 animate-pulse">Running...</div>}
-             </div>
-           </div>
+          <div className="md:hidden w-full flex justify-center pt-3 pb-1" onClick={() => setOutputOpen(false)}><div className="w-12 h-1.5 bg-gray-300 rounded-full"/></div>
+          <div className="p-6 flex flex-col h-full">
+            <div className="flex gap-2 mb-4">
+              <button className="bg-gray-800 text-white text-xs px-3 py-1.5 rounded-full font-bold">Output</button>
+              <button onClick={() => setOutput([])} className="ml-auto text-gray-400 hover:text-red-500"><Trash2 size={14} /></button>
+            </div>
+            <div className="flex-1 bg-[#1e1e1e] rounded-xl p-4 font-mono text-xs overflow-y-auto text-gray-300">
+              {output.map((line, i) => <div key={i} className="mb-1">{line}</div>)}
+              {isRunning && <div className="text-lime-400 animate-pulse">Running...</div>}
+            </div>
+          </div>
         </div>
 
       </div>
