@@ -389,7 +389,10 @@ activeFileName === file.name
               <button onClick={() => setOutput([])} className="ml-auto text-gray-400 hover:text-red-500"><Trash2 size={14} /></button>
             </div>
             <div className="flex-1 bg-[#1e1e1e] rounded-xl p-4 font-mono text-xs overflow-y-auto text-gray-300">
-              {output.map((line, i) => <div key={i} className="mb-1">{line}</div>)}
+              {/* whitespace-pre-wrap preserves \n and wraps text if it gets too long */}
+              {output.map((line, i) => (
+                <div key={i} className="mb-1 whitespace-pre-wrap">{line}</div>
+              ))}
               {isRunning && <div className="text-lime-400 animate-pulse">Running...</div>}
             </div>
           </div>
