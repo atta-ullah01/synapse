@@ -1,30 +1,32 @@
-# 🧠 Synapse: Real-Time Collaborative Code Editor
+# Synapse: Real-Time Collaborative Code Editor
 
-**Synapse** is a real-time collaborative code editor that allows developers to code together in perfect sync. Built with the MERN stack and powered by **Yjs** for conflict-free collaboration, it features a sleek UI, secure code execution via the Piston API, and an VS Code-like editing experience.
-
----
-
-## 📸 Screenshots
-
-| **Authentication & Dashboard** | **Collaborative Editor** |
-|:---:|:---:|
-| ![Dashboard Screenshot](./.screenshots/dashboard-preview.png) <br> *Secure Login & Room Management* | ![Editor Screenshot](./.screenshots/editor-preview.png) <br> *Real-time Editing with Terminal Output* |
+**Synapse** is a real-time collaborative code editor that allows developers to code together in perfect sync. Built with the MERN stack and powered by Yjs for conflict-free collaboration, it features a sleek UI, secure code execution via the Piston API, and an VS Code-like editing experience.
 
 ---
 
-## 🌟 Features
+## Screenshots
 
-- **🚀 Real-Time Collaboration**: Multi-user editing with sub-millisecond latency using **Yjs** & **WebSockets**.
-- **🎨 Modern UI**: Beautiful, responsive interface built with **React**, **Tailwind CSS**, and **Lucide Icons**.
-- **💻 Code Execution**: Secure, sandboxed code execution for JS, Python, Java, and C++ via the **Piston API**.
-- **📁 File System**: Create, delete, and switch between multiple files within a single room.
-- **👥 Presence Awareness**: See who is online and track their cursors in real-time with color-coded indicators.
-- **🔒 Authentication**: Secure user accounts with JWT-based stateless authentication.
-- **💾 Persistence**: Auto-save and manual save functionality to MongoDB.
+| **Dashboard** |
+|:---:|
+| ![Dashboard Screenshot](./.screenshots/dashboard-preview.png) <br> *Secure Login & Room Management* |
+| **Collaborative Editor** |
+| ![Editor Screenshot](./.screenshots/editor-preview.png) <br> *Real-time Editing with Terminal Output* |
 
 ---
 
-## 🛠️ Tech Stack
+## Features
+
+- **Real-Time Collaboration**: Multi-user editing with sub-millisecond latency using **Yjs** & **WebSockets**.
+- **Modern UI**: Beautiful, responsive interface built with **React**, **Tailwind CSS**, and **Lucide Icons**.
+- **Code Execution**: Secure, sandboxed code execution for JS, Python, Java, and C++ via the **Piston API**.
+- **File System**: Create, delete, and switch between multiple files within a single room.
+- **Presence Awareness**: See who is online and track their cursors in real-time with color-coded indicators.
+- **Authentication**: Secure user accounts with JWT-based stateless authentication.
+- **Persistence**: Auto-save and manual save functionality to MongoDB.
+
+---
+
+## Tech Stack
 
 ### **Frontend**
 - **Framework**: React.js (Vite)
@@ -41,7 +43,7 @@
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 Follow these steps to run Synapse locally.
 
@@ -95,7 +97,7 @@ Visit `http://localhost:5173` in your browser.
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 synapse/
